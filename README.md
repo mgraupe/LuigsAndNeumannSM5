@@ -14,7 +14,7 @@ The SM-7 or SM-8-4 control boxes might be accessed using this class, but this ha
 ##Methods:
   Create the object. The object is opened with serial.Serial.
   
-    * obj = LandNSM5()
+    * sm5 = LandNSM5()
 
   Various functions from the manual are implemented such as
   
