@@ -1,5 +1,5 @@
-Luigs_and_Neumann
-=================
+Luigs and Neumann SM-5
+======================
 
 A python class for communicating with the Luigs &amp; Neumann SM-5 control box.
 
