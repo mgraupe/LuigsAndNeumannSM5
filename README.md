@@ -10,34 +10,70 @@ This class uses the python "serial" package which allows for communication with 
 
 The SM-7 or SM-8-4 control boxes might be accessed using this class, but this has not been tested. 
 
+##Requires
 
-##Methods:
+The following python packages are required by the class. 
+
+* import serial
+* import struct
+* numpy 
+* binascii
+* ctypes
+* time 
+
+##Methods
   Create the object. The object is opened with serial.Serial.
   
     * sm5 = LandNSM5()
 
   Various functions from the manual are implemented such as
   
-    * goSteps()
-    * stepSlowDistance(...)
-    * goVariableFastToAbsolutePosition(...)
-    * goVariableSlowToAbsolutePosition(...)
-    * goVariableFastToRelativePosition(...)
-    * stepIncrement(...)
-    * stepDecrement(...)
-    * switchOffAxis(...)
-    * switchOnAxis(...)
-    * setAxisToZero(...)
-    * getPosition(...)
+    * goSteps(device,axis,steps)
+		Moves specified number of steps. 
+		devive ... Number (int) of connected device (e.g., 1,2)
+		axis ... Identifier (string) of axis to move (e.g., 'x', 'y', 'z')
+		steps ... Number (int) of steps to move.
+    * stepSlowDistance(device,axis,distance)
+		Sets the step width. 
+		devive ... Number (int) of connected device (e.g., 1,2)
+		axis ... Identifier (string) of axis to move (e.g., 'x', 'y', 'z')
+		distance ... Step width in \mu m (float).
+    * goVariableFastToAbsolutePosition(device,axis,absolutePosition)
+		Moves fast to absolute position.
+		absolutePosition ... Absolute position in \mu m (float). 
+    * goVariableSlowToAbsolutePosition(device,axis,absolutePosition)
+		Moves slow to absolute position.
+		absolutePosition ... Absolute position in \mu m (float). 
+    * goVariableFastToRelativePosition(device,axis,relativePosition)
+		Moves fast to relative position.
+		relativePosition ... Relative move in \mu m (float). 
+    * goVariableSlowToRelativePosition(device,axis,relativePosition)
+		Moves slow to relative position.
+		relativePosition ... Relative move in \mu m (float). 
+    * stepIncrement(device,axis)
+		Moves one positive step of specified axis. 
+    * stepDecrement(device,axis)
+		Moves one negative step of specified axis. 
+    * switchOffAxis(device,axis)
+		Removes current from specified motor.
+    * switchOnAxis(device,axis)
+		Re-establishes current from specified motor.
+    * setAxisToZero(device,axis)
+		Zeros counter on specified axis.
+    * getPosition(device,axis)
+		Queries position of specified axis.
 
-See refer to code for required input arguments. Futher functions can be easily implemented from the manual following the structure of the class fuctions. 
+Futher functions can be easily implemented from the manual following the structure of the class fuctions. 
 
-##Properties:
+##Properties
 
-verbose - The level of messages displayed (0 or 1). 
+* verbose - The level of messages displayed (0 or 1). 
+* timeOut - Timout (in sec) of the serial connection. 
+* sleepTime - Delay (in sec) between write and read from the serial connection. 
+* maxLoops - Maximal number of read - write loop tries before abort. 
 
 
-##Example session:
+##Example session
 
 ```python
 In [1]: import LandNSM5_1

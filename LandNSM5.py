@@ -75,10 +75,8 @@ import struct
 import time 
 import sys
 from numpy import * 
-import time
 import binascii
 import ctypes
-import pdb
 
 #################################################################
 # Class which allows interaction with the Luigs and Neumann manipulator SM5
@@ -257,6 +255,7 @@ class LandNSM5 :
 		axisNumber = self.chooseAxis(device,axis)
 		deviceData = ([axisNumber])
 		res = self.sendCommand(IDcode,nBytes,deviceData,response,len(response))
+	# Queries position of specified axis.
 	def getPosition(self,device,axis):
 		IDcode = '0101'
 		nBytes = 1
