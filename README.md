@@ -4,9 +4,9 @@ Luigs and Neumann SM-5
 A python class for communicating with the Luigs &amp; Neumann SM-5 control box.
 
 
-LandNSM5 implements a class for communicating with a Luigs & Neumann SM-5 control box to control the manipulators. The SM-5 must be connected with a USB cable. 
+`LandNSM5` implements a class for communicating with a Luigs & Neumann SM-5 control box to control the manipulators. The SM-5 must be connected with a USB cable. 
 
-This class uses the python "serial" package which allows for communication with serial devices through 'write' and 'read'. The communication properties (BaudRate, Terminator, etc.) are set when invoking the serial object with serial.Serial(..). For the SM-5: The Baud rate is 38400 Baud, 8 Data bit, NoParity and 1 Stopbit afterswitch power on (see 'Interface description V1.8.pdf' manual). 
+This class uses the python `serial` package which allows for communication with serial devices through `write` and `read`. The communication properties (BaudRate, Terminator, etc.) are set when invoking the serial object with `serial.Serial(...)`. For the SM-5: The Baud rate is 38400 Baud, 8 Data bit, NoParity and 1 Stopbit afterswitch power on (see 'Interface description V1.8.pdf' manual). 
 
 The SM-7 or SM-8-4 control boxes might be accessed using this class, but this has not been tested. 
 
@@ -22,7 +22,7 @@ The following python packages are required by the class.
 * time 
 
 ##Methods
-  Create the object. The object is opened with serial.Serial.
+  Create the object. The object is opened with `serial.Serial(...)`.
   
     * sm5 = LandNSM5()
 
