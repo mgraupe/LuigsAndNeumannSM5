@@ -67,7 +67,7 @@ Futher functions can be easily implemented from the manual following the structu
 
 ##Properties
 
-* verbose - The level of messages displayed (0 or 1). 
+* verbose - The level of program messages displayed (0 or 1). 
 * timeOut - Timout (in sec) of the serial connection. 
 * sleepTime - Delay (in sec) between write and read from the serial connection. 
 * maxLoops - Maximal number of read - write loop tries before abort. 
