@@ -84,10 +84,13 @@ class LandNSM5 :
 	#################################################################
 	# constructor
 	def __init__(self):
-		self.verbose = 1 # level of messages
+		self.verbose = 0 # level of messages
 		self.timeOut = 1 # timeout in sec
+		self.establishConnectionHold = 3. # time in seconds a connection remains established
 		self.sleepTime = 0.1
 		self.maxLoops = 10
+		# make sure connection is established at the first call
+		self.timeWhenEstablished = time.time() - self.establishConnectionHold
 		# initialize serial connection to controller
 		try:
 			self.ser = serial.Serial(port='COM5',baudrate=38400,bytesize=serial.EIGHTBITS,parity=serial.PARITY_NONE,stopbits=serial.STOPBITS_ONE,timeout=self.timeOut)
@@ -96,13 +99,19 @@ class LandNSM5 :
 			if self.verbose:
 				print self.ser
 				print 'SM5 ready'
+			#return 0
 		except serial.SerialException:
 			print 'No connection to Luigs and Neumann SM5 could be established!'
-			sys.exit(1)
+			self.connected = 0
+			#sys.exit(1)
+		#return self.connected
 	#################################################################
 	# destructor
 	def __del__(self):
-		self.ser.close()
+		try:
+			self.ser.close()
+		except AttributeError:
+			pass
 		if self.verbose : 
 			print 'Connection to Luigs and Neumann SM5 closed'
 	#################################################################
@@ -110,7 +119,9 @@ class LandNSM5 :
 	def sendCommand(self,ID,nBytes,deviceData,response,nBytesRes):
 		#
 		# establish connection before each command (connection is lost after 3 sec)
-		self.establishConnection()
+		self.timePassed = time.time()
+		if (self.timePassed-self.timeWhenEstablished)>self.establishConnectionHold:
+                        self.establishConnection()
 		# calcuate CRC checksum and extract MSB and LSB 
 		(high,low) = self.serialCalculateCRC(deviceData,len(deviceData))
 		# consistency check between number of bytes sent and data array length
@@ -131,6 +142,7 @@ class LandNSM5 :
 		nLoops = 0
 		while True:
 			# write bytes to interface
+			self.timeWhenEstablished = time.time()
 			self.ser.write(sendbytes)
 			# wait
 			time.sleep(self.sleepTime)
@@ -139,13 +151,14 @@ class LandNSM5 :
 			# compare answer with answer mask, if true: break, if false : redo
 			if ansb[:len(response)] == response :
 				if self.verbose:
+                                        #print 'answer :', binascii.hexlify(ansb), len(ansb),
 					print 'done'
 				break
 			if nLoops >= self.maxLoops:
 				print 'Command was not successful!'
 				break
 			if self.verbose:
-				print ansb, len(ansb)
+				print 'insufficient answer :', ansb, len(ansb),
 			print '.',
 			nLoops += 1
 		return ansb
@@ -161,6 +174,8 @@ class LandNSM5 :
 			self.ser.write(sendbytes)
 			time.sleep(self.sleepTime)
 			ansConb = self.ser.read(6)
+			if self.verbose:
+				print ansConb
 			if ansConb == '\x06\x04\x0b\x00\x00\x00':
 				if self.verbose:
 					print 'established'
@@ -264,7 +279,43 @@ class LandNSM5 :
 		deviceData = ([axisNumber])
 		res = self.sendCommand(IDcode,nBytes,deviceData,response,10)
 		return struct.unpack('f',res[4:8])[0]
-	#########################################################
+	# Queries fast velocity of specified axis.
+        def getPositioningVelocityFast(self,device,axis):
+                IDcode = '0160'
+                nBytes = 1
+                response = '\x06\x00\x01\x02'
+                axisNumber = self.chooseAxis(device,axis)
+                deviceData = ([axisNumber])
+                res = self.sendCommand(IDcode,nBytes,deviceData,response,8)
+                return struct.unpack('H',res[4:6])[0]
+        # Queries slow velocity of specified axis.
+        def getPositioningVelocitySlow(self,device,axis):
+                IDcode = '0161'
+                nBytes = 1
+                response = '\x06\x00\x01\x02'
+                axisNumber = self.chooseAxis(device,axis)
+                deviceData = ([axisNumber])
+                res = self.sendCommand(IDcode,nBytes,deviceData,response,8)
+                return struct.unpack('H',res[4:6])[0]
+        # Queries fast velocity of specified axis.
+        def setPositioningVelocityFast(self,device,axis,speed):
+                IDcode = '003d'
+                nBytes = 3
+                response = '\x06\x04\x0b\x00\x00\x00'
+                axisNumber = self.chooseAxis(device,axis)
+                speed_2hex = binascii.hexlify(struct.pack('>H',speed))
+                deviceData = ([axisNumber,int(speed_2hex[2:],16),int(speed_2hex[:2],16)])
+                res = self.sendCommand(IDcode,nBytes,deviceData,response,len(response))
+        # Queries slow velocity of specified axis.
+        def setPositioningVelocitySlow(self,device,axis,speed):
+                IDcode = '003c'
+                nBytes = 3
+                response = '\x06\x04\x0b\x00\x00\x00'
+                axisNumber = self.chooseAxis(device,axis)
+                speed_2hex = binascii.hexlify(struct.pack('>H',speed))
+                deviceData = ([axisNumber,int(speed_2hex[2:],16),int(speed_2hex[:2],16)])
+                res = self.sendCommand(IDcode,nBytes,deviceData,response,len(response))
+        #########################################################
 	# selects device and axis
 	def chooseAxis(self,device,axis):
 		if (device == 1):
